@@ -9,28 +9,27 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 
+
 DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "portfolio_data.json")
+
 
 FONDS = {
     "verbrauchstopf": {
         "name": "Verbrauchstopf",
         "kurz": "Geld fuer das naechste Jahr",
-        "produkt": "Geldmarkt-ETF (z. B. Xtrackers II EUR Overnight Rate Swap UCITS ETF 1C)",
-        "isin": "LU0290358497",
+        "produkt": "Tagesgeld oder Geldmarkt-ETF",
         "erklaerung": "Hier liegt das Geld, das in den naechsten 12 Monaten gebraucht wird. Es soll moeglichst wenig schwanken.",
     },
     "zinstopf": {
         "name": "Zinstopf",
         "kurz": "Sicherheit fuer die darauffolgenden 3 Jahre",
         "produkt": "Fixed Income One R (Ausschuettend)",
-        "isin": "AT0000A347S9",
         "erklaerung": "Hier liegt Geld fuer die Jahre 2 bis 4. Es darf etwas mehr Rendite bringen, soll aber deutlich ruhiger sein als Aktien.",
     },
     "investitionstopf": {
         "name": "Investitionstopf",
         "kurz": "Langfristiges Wachstum",
-        "produkt": "Xtrackers Portfolio ETF oder Global Portfolio One",
-        "isin": "je nach Auswahl",
+        "produkt": "Xtrackers Portfolio ETF",
         "erklaerung": "Hier liegt alles Geld, das langfristig arbeiten soll. Dieser Topf darf schwanken, weil er fuer spaeter gedacht ist.",
     },
 }
@@ -222,7 +221,7 @@ st.caption("Diese App hilft dabei, Geld einfach auf drei Toepfe zu verteilen und
 with st.expander("Erst lesen: Worum geht es hier?", expanded=not p.setup_abgeschlossen):
     st.markdown(
         "Diese App teilt dein Geld in **drei einfache Toepfe** ein. "
-        "Du musst dafuer kein Finanzprofi sein. Die Idee ist nur: Geld, das du bald brauchst, "
+        "Die Idee ist nur: Geld, das du bald brauchst, "
         "soll sicher liegen. Geld fuer spaeter darf mehr Rendite bringen und auch schwanken."
     )
     st.markdown(
@@ -231,8 +230,8 @@ with st.expander("Erst lesen: Worum geht es hier?", expanded=not p.setup_abgesch
         "- **Investitionstopf:** Geld fuer langfristiges Wachstum."
     )
     st.markdown(
-        "Die Aufteilung orientiert sich an deinem jaehrlichen Geldbedarf. Das PDF beschreibt dafuer: "
-        "1 Jahr im Verbrauchstopf, 3 Jahre im Zinstopf und der Rest im Investitionstopf [file:146]."
+        "Die Aufteilung orientiert sich an deinem jaehrlichen Geldbedarf. "
+        "Die Regel ist: 1 Jahr im Verbrauchstopf, 3 Jahre im Zinstopf und der Rest im Investitionstopf."
     )
 
 with st.sidebar:
@@ -251,6 +250,7 @@ with st.sidebar:
     st.divider()
     st.metric("Gesamt", euro(p.gesamt))
 
+
 if schritt == "1. Verstehen":
     st.subheader("Die drei Toepfe einfach erklaert")
     cols = st.columns(3)
@@ -263,13 +263,14 @@ if schritt == "1. Verstehen":
 
     st.markdown("### Wie gross sollen die Toepfe sein?")
     st.write(
-        "Laut PDF soll der Verbrauchstopf **1 Jahresbedarf**, der Zinstopf **3 Jahresbedarfe** und der Investitionstopf **der ganze Rest** sein [file:146]."
+        "Laut Regel soll der Verbrauchstopf **1 Jahresbedarf**, der Zinstopf **3 Jahresbedarfe** und der Investitionstopf **der ganze Rest** sein."
     )
     beispiel = st.number_input("Beispiel: Jahresbedarf eingeben", min_value=0.0, value=24000.0, step=1000.0)
     st.write(f"- Verbrauchstopf: {euro(beispiel)}")
     st.write(f"- Zinstopf: {euro(beispiel * 3)}")
     st.write(f"- Zusammen fuer die ersten 4 Jahre: {euro(beispiel * 4)}")
     st.info("Merksatz: 1 Jahr sofort verfuegbar, 3 Jahre Reserve, Rest fuer spaeter.")
+
 
 elif schritt == "2. Einrichten":
     st.subheader("Schritt 1: Einmal alles eintragen")
@@ -306,6 +307,7 @@ elif schritt == "2. Einrichten":
         st.success("Gespeichert. Jetzt kannst du mit neuem Geld oder Rebalancing weitermachen.")
         st.rerun()
 
+
 elif schritt == "3. Neues Geld verteilen":
     st.subheader("Schritt 2: Neues Geld verteilen")
     info_box(
@@ -334,6 +336,7 @@ elif schritt == "3. Neues Geld verteilen":
                 save_portfolio(p)
                 st.success("Verbucht. Bitte dieselben Kaeufe jetzt auch im echten Depot ausfuehren.")
                 st.rerun()
+
 
 elif schritt == "4. Rebalancing / Anpassen":
     st.subheader("Schritt 3: Pruefen und wieder richtig verteilen")
@@ -377,31 +380,50 @@ elif schritt == "4. Rebalancing / Anpassen":
             st.success("Verbucht. Bitte dieselben Umschichtungen nun auch im echten Depot ausfuehren.")
             st.rerun()
 
+
 elif schritt == "5. Jaehrliche Entnahme":
     st.subheader("Schritt 4: Geld fuer das Jahr entnehmen")
     info_box(
         "Was passiert hier?",
-        "Einmal pro Jahr wird Geld aus dem Verbrauchstopf entnommen. Danach wird der Topf wieder aufgefuellt. Im Normalfall kommt das Geld aus dem Investitionstopf. In einer Boersenkrise kommt es aus dem Zinstopf [file:146].",
+        "Einmal pro Jahr wird Geld aus dem Verbrauchstopf entnommen. Danach wird der Topf wieder aufgefuellt. Im Normalfall kommt das Geld aus dem Investitionstopf. In einer Boersenkrise kommt es aus dem Zinstopf.",
     )
     krise = st.checkbox("Sind die Aktienmaerkte gerade in einer Krise?")
     plan = entnahme_plan(p, krise)
 
     st.markdown("### So geht es jetzt weiter")
-    st.write(f"- Entnimm aus dem Verbrauchstopf: **{euro(plan['entnahme'])}**")
+
+    if p.verbrauchstopf >= p.jahresverbrauch:
+        st.success("Der Verbrauchstopf reicht fuer die geplante Jahresentnahme aus.")
+    else:
+        st.warning("Der Verbrauchstopf reicht nicht vollstaendig aus. Die App zeigt dir unten, wie aufgefuellt werden soll.")
+
+    st.write(f"- Geplanter Jahresbedarf: **{euro(p.jahresverbrauch)}**")
+    st.write(f"- Aktuell im Verbrauchstopf: **{euro(p.verbrauchstopf)}**")
+    st.write(f"- Tatsaechlich jetzt entnehmen: **{euro(plan['entnahme'])}**")
+
+    restbedarf = max(0.0, p.jahresverbrauch - plan["entnahme"])
+    if restbedarf > 0.01:
+        st.write(f"- Danach fehlen noch: **{euro(restbedarf)}**")
+
     if plan["aus_zins"] > 0.01:
-        st.write(f"- Fuell den Verbrauchstopf mit **{euro(plan['aus_zins'])}** aus dem Zinstopf wieder auf")
+        st.write(f"- Nimm **{euro(plan['aus_zins'])}** aus dem Zinstopf und lege es in den Verbrauchstopf.")
+
     if plan["aus_invest"] > 0.01:
-        st.write(f"- Verkaufe **{euro(plan['aus_invest'])}** aus dem Investitionstopf")
+        st.write(f"- Verkaufe insgesamt **{euro(plan['aus_invest'])}** aus dem Investitionstopf.")
         if plan["an_verbrauch"] > 0.01:
-            st.write(f"  - davon **{euro(plan['an_verbrauch'])}** in den Verbrauchstopf")
+            st.write(f"- Lege davon **{euro(plan['an_verbrauch'])}** in den Verbrauchstopf.")
         if plan["an_zins"] > 0.01:
-            st.write(f"  - davon **{euro(plan['an_zins'])}** in den Zinstopf")
+            st.write(f"- Lege davon **{euro(plan['an_zins'])}** in den Zinstopf.")
+
+    if plan["aus_zins"] <= 0.01 and plan["aus_invest"] <= 0.01:
+        st.info("Es ist keine weitere Umschichtung noetig.")
 
     if st.button("Entnahme verbuchen", type="primary"):
         entnahme_anwenden(p, plan)
         save_portfolio(p)
         st.success("Verbucht. Bitte dieselben Verkaeufe/Kauefe jetzt im echten Depot ausfuehren.")
         st.rerun()
+
 
 elif schritt == "6. Verlauf":
     st.subheader("Bisherige Aktionen")
@@ -416,5 +438,6 @@ elif schritt == "6. Verlauf":
     else:
         st.info("Noch kein Verlauf vorhanden.")
 
+
 st.divider()
-st.caption("Hinweis: Diese App fuehrt keine echten Banktransaktionen aus. Sie zeigt nur, was du in deinem echten Depot tun solltest. Die Logik mit 1 Jahr Verbrauchstopf, 3 Jahren Zinstopf und Rest Investitionstopf basiert auf deinem PDF [file:146].")
+st.caption("Hinweis: Diese App fuehrt keine echten Banktransaktionen aus. Sie zeigt nur, was du in deinem echten Depot tun solltest. Die Logik ist: 1 Jahr Verbrauchstopf, 3 Jahre Zinstopf und der Rest im Investitionstopf.")
